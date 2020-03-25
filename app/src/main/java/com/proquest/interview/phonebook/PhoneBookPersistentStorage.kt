@@ -1,0 +1,54 @@
+package com.proquest.interview.phonebook
+
+import com.proquest.interview.util.DatabaseConnectionFactory
+
+class PhoneBookPersistentStorage(
+    private val connectionFactory: DatabaseConnectionFactory
+) : PersistentStorage {
+    override fun addPersonAsync(newPerson: Person) {
+        // TODO: make async
+        try {
+            val connection = connectionFactory.getConnection()
+            connection.createStatement()
+                .execute("INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES ('${newPerson.name}', '${newPerson.phoneNumber}', '${newPerson.address}')")
+            connection.commit()
+            connection.close()
+        } catch (e: Exception) {
+            // TODO: retry?
+            e.printStackTrace()
+            // TODO: move cleanup to finally block
+        }
+    }
+
+    override fun findPerson(firstName: String, lastName: String): Person? {
+        try {
+            val connection = connectionFactory.getConnection()
+            val stmt = connection.createStatement()
+            val rs = stmt.executeQuery("""
+                SELECT NAME, PHONENUMBER, ADDRESS
+                FROM PHONEBOOK
+                WHERE NAME='$firstName $lastName'
+                LIMIT 1
+                """)
+
+            var person: Person? = null
+            if (rs.next()) {
+                person = Person(
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3)
+                )
+            }
+
+            rs.close()
+            stmt.close()
+            connection.close()
+
+            return person
+        } catch (e: Exception) {
+            // TODO: retry?
+            e.printStackTrace()
+            return null
+        }
+    }
+}
