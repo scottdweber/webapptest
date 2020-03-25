@@ -5,3 +5,7 @@ mem.*
 *.war
 *.ear
 /bin/
+
+# Gradle
+.gradle
+build/
