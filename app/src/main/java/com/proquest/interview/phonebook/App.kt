@@ -13,7 +13,16 @@ fun main(args: Array<String>) {
     // TODO: 1. Create these new Person objects, and put them in both PhoneBook and Database.
     //    John Smith, (248) 123-4567, 1234 Sand Hill Dr, Royal Oak, MI
     //    Cynthia Smith, (824) 128-8758, 875 Main St, Ann Arbor, MI
-    val phonebook = PhoneBookImpl()
+    val phonebook = PhoneBookImpl(object : PersistentStorage {
+        override fun addPersonAsync(newPerson: Person) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun findPerson(firstName: String, lastName: String): Person? {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+    })
     phonebook.addPerson(Person("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI"))
     phonebook.addPerson(Person("Cynthia Smith", "(824) 128-8758", "875 Main St, Ann Arbor, MI"))
 
