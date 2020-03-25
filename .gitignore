@@ -9,3 +9,4 @@ mem.*
 # Gradle
 .gradle
 build/
+local.properties
