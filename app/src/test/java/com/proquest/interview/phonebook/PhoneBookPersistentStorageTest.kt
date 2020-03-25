@@ -2,6 +2,8 @@ package com.proquest.interview.phonebook
 
 import com.nhaarman.mockitokotlin2.*
 import com.proquest.interview.util.DatabaseConnectionFactory
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -10,8 +12,10 @@ import java.sql.ResultSet
 import java.sql.Statement
 
 class PhoneBookPersistentStorageTest {
+    private val testScope = TestCoroutineScope()
+
     @Test
-    fun addExecutesCorrectInsertStatement() {
+    fun addExecutesCorrectInsertStatement() = testScope.runBlockingTest {
         val mockStatement = mock<Statement>()
         val mockConnection = mock<Connection> {
             on { createStatement() } doReturn mockStatement
@@ -19,7 +23,7 @@ class PhoneBookPersistentStorageTest {
         val factory = mock<DatabaseConnectionFactory> {
             on { getConnection() } doReturn mockConnection
         }
-        val database = PhoneBookPersistentStorage(factory)
+        val database = PhoneBookPersistentStorage(factory, testScope)
 
         val person = Person("John Doe", "123-456-7890", "123 Main Street")
         database.addPersonAsync(person)
@@ -45,7 +49,7 @@ class PhoneBookPersistentStorageTest {
         val factory = mock<DatabaseConnectionFactory> {
             on { getConnection() } doReturn mockConnection
         }
-        val database = PhoneBookPersistentStorage(factory)
+        val database = PhoneBookPersistentStorage(factory, testScope)
 
         val actualPerson = database.findPerson("John", "Doe")
         assertEquals(person, actualPerson)
@@ -65,7 +69,7 @@ class PhoneBookPersistentStorageTest {
         val factory = mock<DatabaseConnectionFactory> {
             on { getConnection() } doReturn mockConnection
         }
-        val database = PhoneBookPersistentStorage(factory)
+        val database = PhoneBookPersistentStorage(factory, testScope)
 
         val actualPerson = database.findPerson("John", "Doe")
         assertNull(actualPerson)
@@ -88,7 +92,7 @@ class PhoneBookPersistentStorageTest {
         val factory = mock<DatabaseConnectionFactory> {
             on { getConnection() } doReturn mockConnection
         }
-        val database = PhoneBookPersistentStorage(factory)
+        val database = PhoneBookPersistentStorage(factory, testScope)
 
         val persons = database.getAllPersons()
 

@@ -1,22 +1,26 @@
 package com.proquest.interview.phonebook
 
 import com.proquest.interview.util.DatabaseConnectionFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class PhoneBookPersistentStorage(
-    private val connectionFactory: DatabaseConnectionFactory
+    private val connectionFactory: DatabaseConnectionFactory,
+    private val coroutineScope: CoroutineScope
 ) : PersistentStorage {
     override fun addPersonAsync(newPerson: Person) {
-        // TODO: make async
-        try {
-            val connection = connectionFactory.getConnection()
-            connection.createStatement()
-                .execute("INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES ('${newPerson.name}', '${newPerson.phoneNumber}', '${newPerson.address}')")
-            connection.commit()
-            connection.close()
-        } catch (e: Exception) {
-            // TODO: retry?
-            e.printStackTrace()
-            // TODO: move cleanup to finally block
+        coroutineScope.launch {
+            try {
+                val connection = connectionFactory.getConnection()
+                connection.createStatement()
+                    .execute("INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES ('${newPerson.name}', '${newPerson.phoneNumber}', '${newPerson.address}')")
+                connection.commit()
+                connection.close()
+            } catch (e: Exception) {
+                // TODO: retry?
+                e.printStackTrace()
+                // TODO: move cleanup to finally block
+            }
         }
     }
 
