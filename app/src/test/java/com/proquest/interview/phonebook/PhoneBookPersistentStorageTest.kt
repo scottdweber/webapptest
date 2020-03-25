@@ -1,9 +1,6 @@
 package com.proquest.interview.phonebook
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import com.proquest.interview.util.DatabaseConnectionFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -51,7 +48,7 @@ class PhoneBookPersistentStorageTest {
         val database = PhoneBookPersistentStorage(factory)
 
         val actualPerson = database.findPerson("John", "Doe")
-        assertEquals(actualPerson, person)
+        assertEquals(person, actualPerson)
     }
 
     @Test
@@ -72,5 +69,29 @@ class PhoneBookPersistentStorageTest {
 
         val actualPerson = database.findPerson("John", "Doe")
         assertNull(actualPerson)
+    }
+
+    @Test
+    fun getAllReturnsListFromDatabase() {
+        val mockResultSet = mock<ResultSet> {
+            on { next() } doReturnConsecutively listOf(true, true, false)
+            on { getString(1) } doReturnConsecutively listOf("John Smith", "Jane Doe")
+            on { getString(2) } doReturnConsecutively listOf("123", "456")
+            on { getString(3) } doReturnConsecutively listOf("Main Street", "Somewhere Else")
+        }
+        val mockStatement = mock<Statement> {
+            on { executeQuery(any()) } doReturn mockResultSet
+        }
+        val mockConnection = mock<Connection> {
+            on { createStatement() } doReturn mockStatement
+        }
+        val factory = mock<DatabaseConnectionFactory> {
+            on { getConnection() } doReturn mockConnection
+        }
+        val database = PhoneBookPersistentStorage(factory)
+
+        val persons = database.getAllPersons()
+
+        assertEquals(2, persons.size)
     }
 }

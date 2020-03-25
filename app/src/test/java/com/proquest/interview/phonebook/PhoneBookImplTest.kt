@@ -1,8 +1,7 @@
 package com.proquest.interview.phonebook
 
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
 import org.junit.Test
 
 class PhoneBookImplTest {
@@ -74,5 +73,17 @@ class PhoneBookImplTest {
         val actualPerson = phonebook.findPerson("John", "Doe")
         verify(database).findPerson("John", "Doe")
         assertEquals(actualPerson, person)
+    }
+
+    @Test
+    fun getAllPersons_getsDataFromDatabase() {
+        val persons = listOf(Person("", "", ""))
+        val database = mock<PersistentStorage> {
+            on { getAllPersons() } doReturn persons
+        }
+        val phonebook = PhoneBookImpl(database)
+
+        val actualList = phonebook.getAllPersons()
+        assertSame(persons, actualList)
     }
 }

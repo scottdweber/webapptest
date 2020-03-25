@@ -14,4 +14,9 @@ class PhoneBookImpl(
         return people.firstOrNull { person -> person.name == "$firstName $lastName" } ?:
                 database.findPerson(firstName, lastName)
     }
+
+    override fun getAllPersons(): List<Person> {
+        // assumption: database will stay small enough that it is okay to just grab it all into memory
+        return database.getAllPersons()
+    }
 }

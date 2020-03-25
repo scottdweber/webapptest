@@ -51,4 +51,36 @@ class PhoneBookPersistentStorage(
             return null
         }
     }
+
+    override fun getAllPersons(): List<Person> {
+        try {
+            val connection = connectionFactory.getConnection()
+            val stmt = connection.createStatement()
+            val rs = stmt.executeQuery("""
+                SELECT NAME, PHONENUMBER, ADDRESS
+                FROM PHONEBOOK
+                """)
+
+            val persons = mutableListOf<Person>()
+            while (rs.next()) {
+                persons.add(
+                    Person(
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3)
+                    )
+                )
+            }
+
+            rs.close()
+            stmt.close()
+            connection.close()
+
+            return persons
+        } catch (e: Exception) {
+            // TODO: retry?
+            e.printStackTrace()
+            return emptyList()
+        }
+    }
 }
